@@ -12,9 +12,11 @@ const config = {
 
   mongo: { uri: process.env.DB_CONNECTION_STRING },
   port: process.env.PORT,
-
+  menuItemCategories: ['coffee', 'drinks', 'food'],
   website: process.env.WEBSITE,
-  whitelist: [null, undefined, 'null'].includes(process.env.WHITE_LIST) ? null : process.env.WHITE_LIST.split(','),
+  whitelist: [null, undefined, 'null'].includes(process.env.WHITE_LIST)
+    ? null
+    : process.env.WHITE_LIST.split(','),
 };
 
 module.exports = config;
