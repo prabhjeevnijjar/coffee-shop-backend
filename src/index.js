@@ -7,6 +7,7 @@ const cors = require('cors');
 const Ddos = require('ddos');
 const helmet = require('helmet');
 const ExpressLogs = require('express-server-logs');
+const routes = require('./api/v1/router');
 
 const { whitelist, ddosConfig } = require('./config');
 const ddosInstance = new Ddos(ddosConfig);
@@ -37,6 +38,10 @@ app.use(cors(corsOptions));
 app.use(helmet());
 //logger
 app.use(xlogs.logger);
+
+
+app.use('/api/v1', routes);
+app.use('/*', (req, res) => res.send('Not Found'));
 
 // app.use(function (req, res, next) {
 //   res.header('Access-Control-Allow-Origin', '*');
