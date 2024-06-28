@@ -7,6 +7,10 @@ const shopSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    description: {
+      type: String,
+      required: false,
+    },
     coordinates: {
       latitude: {
         type: String,
@@ -64,5 +68,6 @@ const shopSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+shopSchema.index({ name: 'shopName', 'description': 'text' });
 
 module.exports = mongoose.model('Shops', shopSchema);

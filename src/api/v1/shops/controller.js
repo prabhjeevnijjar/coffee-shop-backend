@@ -2,8 +2,46 @@ const httpStatus = require('http-status');
 const Shops = require('./shopdetails.model');
 const { success, error } = require('../../../helper/response');
 
-exports.getAllShops = () => {
-  console.log('hello world');
+/**
+ * Get all shops list acc to filter specified
+ * @public
+ */
+exports.getAllShops = async (req, res, next) => {
+  try {
+    const { page = 0, limit = 5 } = req.query;
+    let { sort = 'starRating' } = req.query;
+    sort ? (sort = sort.split(',')) : (sort = [sort]);
+
+    let sortBy = {};
+    if (sort[1]) sortBy[sort[0]] = sort[1];
+    else sortBy[sort[0]] = -1;
+
+    console.log({ sortBy });
+    const result = await Shops.find()
+      .where('isVisible')
+      .equals(true)
+      .sort(sortBy)
+      .skip(page * limit)
+      .limit(limit);
+
+    const totalDocs = await Shops.countDocuments()
+      .where('isVisible')
+      .equals(true)
+      .sort(sortBy)
+      .skip(page * limit)
+      .limit(limit);
+
+    res.status(httpStatus.OK).json(
+      success({
+        message: 'Fetch success!',
+        error: false,
+        code: httpStatus.FOUND,
+        results: { result, totalDocs },
+      })
+    );
+  } catch (error) {
+    return next(error);
+  }
 };
 
 exports.getAllNearestShops = () => {
@@ -56,5 +94,51 @@ exports.addNewShop = async (req, res, next) => {
     );
   } catch (error) {
     return next(error);
+  }
+};
+
+/**
+ * Search all the existing shops in DB and returns the matching query
+ * @public
+ */
+exports.searchShops = async (req, res, next) => {
+  try {
+    const searchQuery = req.query.query;
+
+    const pipeline = [];
+
+    pipeline.push({
+      $search: {
+        index: 'shop_search',
+        text: {
+          query: searchQuery,
+          path: ['shopName', 'description'],
+          fuzzy: {},
+        },
+      },
+    });
+
+    pipeline.push({
+      $project: {
+        _id: 0,
+        score: { $meta: 'searchScore' },
+        shopName: 1,
+        description: 1,
+        image: 1,
+      },
+    });
+
+    const result = await Shops.aggregate(pipeline);
+
+    res.status(httpStatus.OK).json(
+      success({
+        message: 'Fetch success!',
+        error: false,
+        code: httpStatus.FOUND,
+        results: { result },
+      })
+    );
+  } catch (error) {
+    next(error);
   }
 };
