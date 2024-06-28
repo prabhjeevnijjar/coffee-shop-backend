@@ -82,4 +82,23 @@ router.route('/add').post(controller.addNewShop);
  */
 
 router.route('/search').get(controller.searchShops);
+
+
+
+/**
+ * @api {get} v1/shops/fetch-shop Get shop by id
+ * @apiDescription Search for a particular shop
+ * @apiVersion 1.0.0
+ * @apiName getShopById
+ * @apiPermission public
+ *
+ * @apiQuery  {String}  id   Search query
+
+ * @apiSuccess {Object}  Shops    Fetched matching shop
+ *
+ * @apiError (Bad Request 400)  ValidationError  Some parameters may contain invalid values
+ */
+
+router.route('/fetch-shop').get(controller.getShopById);
+
 module.exports = router;

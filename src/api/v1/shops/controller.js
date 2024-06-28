@@ -16,7 +16,6 @@ exports.getAllShops = async (req, res, next) => {
     if (sort[1]) sortBy[sort[0]] = sort[1];
     else sortBy[sort[0]] = -1;
 
-    console.log({ sortBy });
     const result = await Shops.find()
       .where('isVisible')
       .equals(true)
@@ -106,7 +105,9 @@ exports.searchShops = async (req, res, next) => {
     const searchQuery = req.query.query;
 
     const pipeline = [];
-
+    // pipeline.push({
+    //   $match: { isVisible: true },
+    // });
     pipeline.push({
       $search: {
         index: 'shop_search',
@@ -120,7 +121,7 @@ exports.searchShops = async (req, res, next) => {
 
     pipeline.push({
       $project: {
-        _id: 0,
+        _id: 1,
         score: { $meta: 'searchScore' },
         shopName: 1,
         description: 1,
@@ -138,6 +139,40 @@ exports.searchShops = async (req, res, next) => {
         results: { result },
       })
     );
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Get the particular coffe shop details by _Id
+ * @public
+ */
+exports.getShopById = async (req, res, next) => {
+  try {
+    const result = await Shops.findOne({ _id: req.query.id })
+      .where('isVisible')
+      .equals(true);
+
+    if (result) {
+      res.status(httpStatus.OK).json(
+        success({
+          message: 'Fetch success!',
+          error: false,
+          code: httpStatus.FOUND,
+          results: result,
+        })
+      );
+    } else {
+      res.status(httpStatus.OK).json(
+        success({
+          message: 'Not found!',
+          error: false,
+          code: httpStatus.NOT_FOUND,
+          results: result,
+        })
+      );
+    }
   } catch (error) {
     next(error);
   }
