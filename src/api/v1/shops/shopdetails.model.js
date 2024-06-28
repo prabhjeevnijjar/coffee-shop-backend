@@ -7,12 +7,17 @@ const shopSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    coordinates: [
-      {
-        latitude: String,
-        longitude: String,
+    coordinates: {
+      latitude: {
+        type: String,
+        required: true,
       },
-    ],
+      longitude: {
+        type: String,
+        required: true,
+      },
+    },
+
     reviewCount: {
       type: String,
       required: false,
@@ -30,24 +35,24 @@ const shopSchema = new mongoose.Schema(
       {
         name: {
           type: String,
-          required: true,
+          required: false,
         },
         description: {
           type: String,
-          required: true,
+          required: false,
         },
         image: {
           type: String,
-          required: true,
+          required: false,
         },
         price: {
           type: String,
-          required: true,
+          required: false,
         },
         category: {
           type: String,
           enum: menuItemCategories,
-          required: true,
+          required: false,
         },
       },
     ],

@@ -31,6 +31,7 @@
     "express-server-logs": "^1.0.4",
     "express-validator": "^7.1.0",
     "helmet": "^7.1.0",
+    "http-status": "^1.7.4",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.4.4",
     "morgan": "^1.10.0",

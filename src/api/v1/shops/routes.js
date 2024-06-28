@@ -2,7 +2,7 @@ const router = require('express').Router();
 const controller = require('./controller');
 
 /**
- * @api {post} v1/shops/list Get all shops
+ * @api {get} v1/shops/list Get all shops
  * @apiDescription Get all shops acc to pageinations
  * @apiVersion 1.0.0
  * @apiName getAllShops
@@ -18,7 +18,7 @@ const controller = require('./controller');
 router.route('/list').get(controller.getAllShops);
 
 /**
- * @api {post} v1/shops/list-nearest Get all shops nearby user
+ * @api {get} v1/shops/list-nearest Get all shops nearby user
  * @apiDescription Get all shops near to user
  * @apiVersion 1.0.0
  * @apiName getAllNearestShops
@@ -36,7 +36,7 @@ router.route('/list').get(controller.getAllShops);
 router.route('/list-nearest').get(controller.getAllNearestShops);
 
 /**
- * @api {post} v1/shops/list Get menu items of a coffe sho[]
+ * @api {get} v1/shops/list Get menu items of a coffe sho[]
  * @apiDescription Get all menu items
  * @apiVersion 1.0.0
  * @apiName getAllMenuItems
@@ -49,6 +49,22 @@ router.route('/list-nearest').get(controller.getAllNearestShops);
  * @apiError (Bad Request 400)  ValidationError  Some parameters may contain invalid values
  */
 
-router.route('/list-nearest').get(controller.getAllMenuItems);
+router.route('/menu-items').get(controller.getAllMenuItems);
+
+/**
+ * @api {post} v1/shops/list Add new shops with menu items
+ * @apiDescription Add new shop
+ * @apiVersion 1.0.0
+ * @apiName addNewShop
+ * @apiPermission public
+ *
+ * @apiQuery  {Number}  id            Shop Id
+
+ * @apiSuccess {Object}  user    Fetched all menu items of the shop
+ *
+ * @apiError (Bad Request 400)  ValidationError  Some parameters may contain invalid values
+ */
+
+router.route('/add').post(controller.addNewShop);
 
 module.exports = router;
