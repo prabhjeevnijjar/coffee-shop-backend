@@ -1,27 +1,58 @@
 const mongoose = require('mongoose');
-const { env } = require('./config');
+const {
+  mongo,
+  digestAuth,
+  searchBaseUrl,
+  collectionName,
+  databaseName,
+} = require('./config');
+const { request } = require('urllib');
 
-// set mongoose Promise to Bluebird
-mongoose.Promise = Promise;
+const findIndexByName = async (indexName) => {
+  const allIndexesResponse = await request(
+    `${searchBaseUrl}/${databaseName}/${collectionName}`,
+    {
+      dataType: 'json',
+      contentType: 'application/json',
+      method: 'GET',
+      digestAuth: digestAuth,
+    }
+  );
+console.log("-=-=-=-=-",allIndexesResponse.data)
+  return allIndexesResponse.data.find((i) => i.name === indexName);
+};
 
-// Exit application on error
-mongoose.connection.on('error', (err) => {
-  console.error(`MongoDB connection error: ${err}`);
+const upsertSearchIndex = async () => {
+  const shopSearchIndex = await findIndexByName('shop_search');
+  console.log({shopSearchIndex})
+  if (!shopSearchIndex) {
+    await request(searchBaseUrl, {
+      data: {
+        name: 'shop_search',
+        database: databaseName,
+        collectionName: collectionName,
+        // https://www.mongodb.com/docs/atlas/atlas-search/index-definitions/#syntax
+        mappings: {
+          dynamic: true,
+        },
+      },
+      dataType: 'json',
+      contentType: 'application/json',
+      method: 'POST',
+      digestAuth: digestAuth,
+    });
+  }
+};
 
-  // eslint-disable-next-line no-undef
-  process.exit(-1);
-});
+exports.mongoClient = new mongoose.mongo.MongoClient(mongo.uri);
 
-// print mongoose logs in dev env
-if (env === 'development') mongoose.set('debug', false);
-
-/**
- * Connect to mongo db
- *
- * @returns {object} Mongoose connection
- * @public
- */
-exports.connect = () => {
-  console.log('Mongo connected!!');
-  return mongoose.connection;
+exports.connectToMongo = async () => {
+  try {
+    mongoose.set('strictQuery', false);
+    mongoose.connect(mongo.uri);
+    await upsertSearchIndex();
+    console.log('Mongo connected');
+  } catch (error) {
+    console.log(error);
+  }
 };
