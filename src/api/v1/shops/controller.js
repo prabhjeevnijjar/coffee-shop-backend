@@ -108,37 +108,38 @@ exports.searchShops = async (req, res, next) => {
     // pipeline.push({
     //   $match: { isVisible: true },
     // });
-    pipeline.push({
-      $search: {
-        index: 'shop_search',
-        text: {
-          query: searchQuery,
-          path: ['shopName', 'description'],
-          fuzzy: {},
+    if (searchQuery) {
+      pipeline.push({
+        $search: {
+          index: 'shop_search',
+          text: {
+            query: searchQuery,
+            path: ['shopName', 'description'],
+            fuzzy: {},
+          },
         },
-      },
-    });
+      });
 
-    pipeline.push({
-      $project: {
-        _id: 1,
-        score: { $meta: 'searchScore' },
-        shopName: 1,
-        description: 1,
-        image: 1,
-      },
-    });
+      pipeline.push({
+        $project: {
+          _id: 1,
+          score: { $meta: 'searchScore' },
+          shopName: 1,
+          images: 1,
+        },
+      });
 
-    const result = await Shops.aggregate(pipeline);
+      const result = await Shops.aggregate(pipeline);
 
-    res.status(httpStatus.OK).json(
-      success({
-        message: 'Fetch success!',
-        error: false,
-        code: httpStatus.FOUND,
-        results: { result },
-      })
-    );
+      res.status(httpStatus.OK).json(
+        success({
+          message: 'Fetch success!',
+          error: false,
+          code: httpStatus.FOUND,
+          results: { result },
+        })
+      );
+    }
   } catch (error) {
     next(error);
   }
